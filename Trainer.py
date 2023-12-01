@@ -70,8 +70,8 @@ class DDPMTrainer():
                 t_tensor = torch.Tensor([t_]).long().to(self.device)
                 x = self.ddpm.reverse(x, t_tensor)
         x = x.cpu().squeeze(0).permute(1, 2, 0).numpy()
-        x = np.clip(x, -1, 1)
-        figure = (x + 1) / 2 * 255
+        x = np.clip(x, 0, 1)
+        figure = x * 255
         figure = np.round(figure, 0).astype('uint8')
         im = Image.fromarray(figure)
         im.save(path)
@@ -87,6 +87,8 @@ class DDPMTrainer():
             with open(os.path.join(self.output_path, "loss.json"), 'w+') as f:
                 f.write(json.dumps(self.loss))
 
+    def load_state_dict(self,path):
+        self.eps_model.load_state_dict(path)
 
 if __name__ == "main":
     dataset = CelebA(128)
