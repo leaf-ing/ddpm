@@ -89,6 +89,7 @@ class DDPMTrainer():
 
     def load_state_dict(self,path):
         self.eps_model.load_state_dict(torch.load(path))
+        self.ddpm.eps_model.load_state_dict(torch.load(path))
 
 if __name__ == "main":
     dataset = CelebA(128)

@@ -18,6 +18,6 @@ class CelebA(Dataset):
 
     def __getitem__(self, i):
         name = self.names[i]
-        img = Image.open(os.path.join(self.path, name)).convert("RGB")
+        img = Image.open(os.path.join(self.path, name))
         img_tensor = self.transform(img)
         return img_tensor

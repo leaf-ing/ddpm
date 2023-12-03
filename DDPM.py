@@ -36,14 +36,15 @@ class DDPM(nn.Module):
         return noisy_img
 
     def reverse(self, xt: torch.Tensor, t: torch.Tensor):
-        eps = self.eps_model(xt, t)
+        eps_theta = self.eps_model(xt, t)
         alpha_bar = self.alpha_bar.gather(-1, t)
         alpha = self.alpha.gather(-1, t)
-        eps_t = torch.rand_like(xt)
+        eps_t = torch.rand_like(xt, device=xt.device)
+        eps_coef = (1 - alpha) / (1 - alpha_bar) ** 0.5
         # xt-1= [xt - beta * eps / sqrt(1 - alpha_bar)] / sqrt(alpha) + sqrt(beta) * eps_t
-        mean = (xt - (1 - alpha) * eps / ((1 - alpha_bar) ** 0.5)) / (alpha ** 0.5)
+        mean = 1 / (alpha ** 0.5) * (xt - eps_coef * eps_theta)
         var = self.beta.gather(-1, t)
-        return mean + eps_t * (var ** 0.5)
+        return mean + (var ** 0.5) * eps_t
 
     def loss(self, x0: torch.Tensor, noise: torch.Tensor = None):
         batch_size = x0.shape[0]
